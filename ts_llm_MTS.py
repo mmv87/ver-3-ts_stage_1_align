@@ -192,7 +192,7 @@ for epoch in range(1):  ##1 epochs
         ##model_wrapper=LLM_wrapper(tokenizer,ts_input,model,device=device)
         optimizer.zero_grad()
         outputs,_= model_wrapper(input_ids=input_ids,ts_input=ts_input,ts_pairs=ts_pairs,ts_idx=ts_indices,
-                                 text_idx=textual_indices,attention_mask=attention_mask,ch_mask=None,labels=labels_batch,)
+                                 text_idx=textual_indices,attention_mask=attention_mask,ch_mask=ch_mask,labels=labels_batch,)
         loss=outputs.loss
         loss.backward()  
         ##print(f'batch{i} gradient done')
