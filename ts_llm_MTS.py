@@ -8,7 +8,7 @@ import os
 import sys
 import numpy as np
 from torch.utils.data import Dataset,DataLoader
-from modules.conv_module import ConvFeatureExtraction
+#from modules.conv_module import ConvFeatureExtraction
 from modules.ts_encoder_perceiver_resampler import PatchTSTEncoder
 from modules.ts_encoder import llm_projection
 
@@ -34,7 +34,7 @@ _json_file = os.path.join(os.environ["SLURM_TMPDIR"],"train.jsonl")
 ts_warmup_weights=os.path.join(os.environ["SLURM_TMPDIR"],"ts_enc_stage1_warmup.pth")
 embedding_weights=os.path.join(os.environ["SLURM_TMPDIR"],"embeddings_layer.pt")
 ###datapipeline
-dataset=ts_textual(21,5,tokenizer,_json_file,15000,device=device)
+dataset=ts_textual(21,5,tokenizer,_json_file,5000,device=device)
 dataloader=DataLoader(dataset,batch_size=1,shuffle=True,collate_fn=lambda b:collate_func(b,tokenizer=tokenizer))
 
 class LLM_wrapper(nn.Module):
