@@ -67,7 +67,7 @@ class LLM_wrapper(nn.Module):
         lq_key = "ts_encoder.encoder.cross_attn_block.cross_attn.latent_q"
         if lq_key in ts_enc_state_dict:
             trained_weights=ts_enc_state_dict[lq_key]
-            resampler="ts_encoder.encoder.cross_attn_block.cross_attn"
+            resampler=self.ts_encoder.ts_encoder.encoder.cross_attn_block.cross_attn
             resampler.intialize_weights_(trained_tensor=trained_weights)
 
         for p in self.ts_encoder.parameters():
