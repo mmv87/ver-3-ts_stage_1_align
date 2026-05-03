@@ -122,7 +122,7 @@ class LLM_wrapper(nn.Module):
     def forward(self,input_ids=None,ts_input=None,ts_pairs=None,ts_idx=None,text_idx=None,attention_mask=None,ch_mask=None,labels=None,):
         ##convert the ts_patches into ts_embeddings
         ts_tensor = ts_input.to(self.device)  ## (bs,c_in,N,P)
-        ts_embedding = self.ts_encoder(ts_tensor.to(self.device),ch_mask=ch_mask) 
+        ts_embedding = self.ts_encoder(ts_tensor.to(self.device),ch_mask) 
         print(f'ts_embedding_shape:{ts_embedding.shape}')
         ##slicing
         ##ts_embedding_sliced =ts_embedding[ts_masks] ##flattened ts_embeddings
