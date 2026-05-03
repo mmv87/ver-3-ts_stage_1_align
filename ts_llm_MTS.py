@@ -34,7 +34,7 @@ _json_file = os.path.join(os.environ["SLURM_TMPDIR"],"train.jsonl")
 ts_warmup_weights=os.path.join(os.environ["SLURM_TMPDIR"],"ts_enc_stage1_warmup.pth")
 embedding_weights=os.path.join(os.environ["SLURM_TMPDIR"],"embeddings_layer.pt")
 ###datapipeline
-dataset=ts_textual(128,128,tokenizer,_json_file,5000,device=device)
+dataset=ts_textual(21,5,tokenizer,_json_file,15000,device=device)
 dataloader=DataLoader(dataset,batch_size=1,shuffle=True,collate_fn=lambda b:collate_func(b,tokenizer=tokenizer))
 
 class LLM_wrapper(nn.Module):
@@ -187,10 +187,12 @@ for epoch in range(1):  ##1 epochs
         ts_pairs=batch['ts_pairs'].to(device)
         ts_indices=batch["ts_indices"].to(device)
         textual_indices=batch['textual_indices'].to(device)
+        ch_mask =batch['ch_mask'].to(device)
         ###ts_mask = batch['ts_mask'].to(device)
         ##model_wrapper=LLM_wrapper(tokenizer,ts_input,model,device=device)
         optimizer.zero_grad()
-        outputs,_= model_wrapper(input_ids=input_ids,ts_input=ts_input,ts_pairs=ts_pairs,ts_idx=ts_indices,text_idx=textual_indices,attention_mask=attention_mask,labels=labels_batch,)
+        outputs,_= model_wrapper(input_ids=input_ids,ts_input=ts_input,ts_pairs=ts_pairs,ts_idx=ts_indices,
+                                 text_idx=textual_indices,attention_mask=attention_mask,ch_mask=None,labels=labels_batch,)
         loss=outputs.loss
         loss.backward()  
         ##print(f'batch{i} gradient done')

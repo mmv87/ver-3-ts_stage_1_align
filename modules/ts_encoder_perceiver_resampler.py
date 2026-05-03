@@ -27,13 +27,22 @@ class perceiver_resampler(nn.Module):
         
         ### initialize the latent queries
         self.latent_q=nn.Parameter(torch.empty(self.max_ch*self.lat_dim,self.d_q*n_heads))
-        self.intialize_weights()
-        nn.init.xavier_uniform_(self.latent_q)
+        self.intialize_weights_()
+        #nn.init.xavier_uniform_(self.latent_q)
         ## transformation of k,v 
         self.w_k=nn.Linear(d_embed,self.d_k*n_heads)
         self.w_v=nn.Linear(d_embed,self.d_v*n_heads)
         self.scale = nn.Parameter(torch.tensor(self.n_heads ** -0.5), requires_grad=False)
-    def intialize_weights(self):
+        
+    def intialize_weights_(self,trained_tensor=None):
+        with torch.no_grad():
+           if trained_tensor is not None:
+               expert_seed =trained_tensor[:self.lat_dim,:]
+               expanded = expert_seed.repeat(self.max_ch, 1)
+               self.latent_q.copy_(expanded)
+           else:
+               nn.init.xavier_uniform_(self.latent_q)
+        
         ###load the weights from the ts_encoder 's latent query
         ### expand the [:5,:]
         pass
