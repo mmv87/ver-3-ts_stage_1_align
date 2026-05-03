@@ -43,8 +43,6 @@ class LLM_wrapper(nn.Module):
         self.tokenizer=tokenizer
         self.llm_model=llm_model
         self.embed_size=llm_model.config.hidden_size
-        """self.max_patches=max_patches
-        self.max_channel=max_channel"""
         self.device=device
         self.conv_layers=conv_layers
         self.lat_dim=latent_dim
@@ -64,6 +62,13 @@ class LLM_wrapper(nn.Module):
         ts_enc_state_dict = torch.load(ts_checkpoint, map_location=self.device)
         self.ts_encoder.load_state_dict(ts_enc_state_dict,strict=False)
         self.ts_encoder.to(self.device)
+        
+        ###to locally intialize the perceiver resampler 's latent_q
+        lq_key = "ts_encoder.encoder.cross_attn_block.cross_attn.latent_q"
+        if lq_key in ts_enc_state_dict:
+            trained_weights=ts_enc_state_dict[lq_key]
+            resampler="ts_encoder.encoder.cross_attn_block.cross_attn"
+            resampler.intialize_weights_(trained_tensor=trained_weights)
 
         for p in self.ts_encoder.parameters():
             p.requires_grad = True
@@ -94,7 +99,7 @@ class LLM_wrapper(nn.Module):
         T_new=ts_token_idx.shape[1]+text_token_idx.shape[1]
         ts_container =torch.zeros((T_new,text_emb_dim),device=self.device) ### total_idx,total_idx
         ##text_container=torch.zeros((T_new,text_emb_dim),device=self.device)
-        flat_ts_embeddings=ts_embeddings.view(-1,c_in*num_ts_tokens,ts_emb_dim)
+        flat_ts_embeddings=ts_embeddings.view(-1,T,ts_emb_dim)
         flat_ts_embeddings=flat_ts_embeddings.squeeze(0)
         ##print(f'ts_embedding_flat:{flat_ts_embeddings.shape}')
         
@@ -131,8 +136,8 @@ class LLM_wrapper(nn.Module):
         return output,input_embeddings
     
 from tqdm import tqdm
-conv_layers=[(128,5,1),(64,3,1)]
-model_wrapper=LLM_wrapper(tokenizer,conv_layers,128,model,embed_path=embedding_weights,ts_checkpoint=ts_warmup_weights,device=device)
+conv_layers_1=[(64,7,3,1),(128,5,3,2),(256,3,2,2),(512,3,2,2),(1024,3,2,2)]
+model_wrapper=LLM_wrapper(tokenizer,conv_layers_1,model,5,embed_path=embedding_weights,ts_checkpoint=ts_warmup_weights,device=device)
 model_wrapper.train()
 model_wrapper.to(device)
 
