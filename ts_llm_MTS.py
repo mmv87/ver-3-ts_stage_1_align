@@ -99,7 +99,7 @@ class LLM_wrapper(nn.Module):
         T_new=ts_token_idx.shape[1]+text_token_idx.shape[1]
         ts_container =torch.zeros((T_new,text_emb_dim),device=self.device) ### total_idx,total_idx
         ##text_container=torch.zeros((T_new,text_emb_dim),device=self.device)
-        flat_ts_embeddings=ts_embeddings.view(-1,T,ts_emb_dim)
+        flat_ts_embeddings=ts_embeddings_slice.view(-1,T,ts_emb_dim)
         flat_ts_embeddings=flat_ts_embeddings.squeeze(0)
         ##print(f'ts_embedding_flat:{flat_ts_embeddings.shape}')
         
