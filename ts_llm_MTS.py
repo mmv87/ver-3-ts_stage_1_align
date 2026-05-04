@@ -89,7 +89,7 @@ class LLM_wrapper(nn.Module):
         T=ts_embeddings_slice.shape[1]
         ts_emb_dim=ts_embeddings_slice.shape[2]
         
-        assert T==channels
+        assert T==slicing_dim
 
         input_embeds=self.input_embeds(input_ids) ##[bs,seq_len,d_emb]
         ##input_embeds.requires_grad_(requires_grad=True) ### to make sure operations on embedding_tensor is maintained
